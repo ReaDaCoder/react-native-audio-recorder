@@ -1,7 +1,8 @@
 import React from 'react';
+import { useEffect } from 'react';
 import {StyleSheet, Text, View, Button, Image} from 'react-native';
 import {Audio} from 'expo-av';
-//import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RootLayout(){
   const [recording, setRecording] = React.useState();
@@ -25,32 +26,40 @@ export default function RootLayout(){
     }
   }
 
+  useEffect(() => {
+    AsyncStorage.getItem('records')
+      .then((storedRecords) => {
+        if (storedRecords) {
+          setRecords(JSON.parse(storedRecords)); 
+        }
+      })
+      .catch((error) => console.error('Error loading records:', error));
+  }, []);
+
   async function stopRecording(){
     setRecording(undefined);
 
   await recording.stopAndUnloadAsync();
   const { sound, status } = await recording.createNewLoadedSoundAsync();
   
-  setRecords((prevRecords) => [
-    ...prevRecords,
-    {
-      sound: sound,
-      duration: getDuration(status.durationMillis),
-      file: recording.getURI(),
-    },
-  ]);
-    
-    // setRecording(undefined);
 
-    // await recording.stopAndUnloadAsync();
-    // let allowsRecording = [];  //{...records};
-    // const {sound, starus} = await recording.createNewLoadedSoundAsync();
-    // allowsRecording.push({
-    //   sound: sound,
-    //   duration: getDuration(status.durationMillis),
-    //   file: recording.getURI()
-    // });
-    //setRecords(allowsRecording);
+  const newRecord = {
+    sound: sound,
+    duration: getDuration(status.durationMillis),
+    file: recording.getURI(),
+  };
+
+  setRecords((prevRecords) => {
+    const updatedRecords = [...prevRecords, newRecord];
+
+    // Save to local storage
+    AsyncStorage.setItem('records', JSON.stringify(updatedRecords))
+      .then(() => console.log('Records saved successfully!'))
+      .catch((error) => console.error('Error saving records:', error));
+
+    return updatedRecords;
+  });
+    
   }
 
    function getDuration(miliseconds) {
@@ -75,6 +84,9 @@ export default function RootLayout(){
 
   function clearRecordings(){
     setRecords([]);
+    AsyncStorage.removeItem('records')
+    .then(() => console.log('Records cleared successfully!'))
+    .catch((error) => console.error('Error clearing records:', error));
   }
 
 
@@ -115,72 +127,3 @@ const styles = StyleSheet.create({
     marginTop:29
   }
 });
-
-
-// import { useEffect, useState } from 'react';
-// import { Text, View, Button,StyleSheet } from 'react-native';
-// import 'react-native-reanimated';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-// import { useAudioRecorder,useAudioPlayer, RecordingOptions, AudioModule, RecordingPresets } from 'expo-audio';
-
-// export default function RootLayout() {
-//   const [audioSource, setAudioSource] = useState(null);
-//   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-
-//  // const record = () => audioRecorder.record();
-
-//  const record = async () => {
-//   try {
-//     // Prepare the recorder before starting
-//     await audioRecorder.prepareToRecordAsync();
-//     audioRecorder.record();
-//   } catch (error) {
-//     console.error('Error preparing to record:', error);
-//   }
-// };
-
-//   const player = useAudioPlayer(audioSource);
-
-//   const stopRecording = async () => {
-//     //await audioRecorder.stop();
-//     try {
-//       await audioRecorder.stop();
-//       setAudioSource(audioRecorder.uri); // Set the recorded audio URI
-//     } catch (error) {
-//       console.error('Error stopping the recording:', error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     (async () => {
-//       const status = await AudioModule.requestRecordingPermissionsAsync();
-//       if (!status.granted) {
-//         Alert.alert('Permission to access microphone was denied');
-//       }
-//     })();
-//   }, []);
-
-//   return (
-//     <SafeAreaView>
-//       <View style={styles.container}>
-//       <Button
-//         title={audioRecorder.isRecording ? 'Stop Recording' : 'Start Recording'}
-//         onPress={audioRecorder.isRecording ? stopRecording : record}
-//       />
-//       </View>
-//       <View style={styles.container}>
-//       <Button title="Play Sound" onPress={() => player.play()} />
-//     </View>
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     backgroundColor: '#ecf0f1',
-//     padding: 10,
-//   },
-// });
-
