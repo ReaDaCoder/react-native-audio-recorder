@@ -1,8 +1,9 @@
 import React from 'react';
 import { useEffect } from 'react';
-import {StyleSheet, Text, View, Button, Image} from 'react-native';
+import {StyleSheet, Text, View, Image, Button} from 'react-native';
 import {Audio} from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+//import { Table, Button } from 'semantic-ui-react';
 
 export default function RootLayout(){
   const [recording, setRecording] = React.useState();
@@ -26,11 +27,23 @@ export default function RootLayout(){
     }
   }
 
+  
+
+  // useEffect(() => {
+  //   AsyncStorage.getItem('records')
+  //     .then((storedRecords) => {
+  //       if (storedRecords) {
+  //         setRecords(JSON.parse(storedRecords)); 
+  //       }
+  //     })
+  //     .catch((error) => console.error('Error loading records:', error));
+  // }, []);
+
   useEffect(() => {
     AsyncStorage.getItem('records')
       .then((storedRecords) => {
         if (storedRecords) {
-          setRecords(JSON.parse(storedRecords)); 
+          setRecords(JSON.parse(storedRecords));
         }
       })
       .catch((error) => console.error('Error loading records:', error));
@@ -76,11 +89,23 @@ export default function RootLayout(){
             Recording #{index + 1} | 
             {recordingLine.duration}
           </Text>
-          <Button onPress={() => recordingLine.sound.replayAsync()} title="Play"></Button>
+          <Button
+  onPress={() => {
+    if (recordingLine.sound && typeof recordingLine.sound.replayAsync === 'function') {
+      recordingLine.sound.replayAsync();
+    } else {
+      console.error('Invalid sound object:', recordingLine.sound);
+    }
+  }}
+  title="Play"
+/>
+
+          {/* <Button onPress={() => recordingLine.sound.replayAsync()} title="Play"></Button> */}
         </View>
       )
     })
   }
+
 
   function clearRecordings(){
     setRecords([]);

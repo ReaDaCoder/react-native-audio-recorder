@@ -48,7 +48,9 @@
     "react-native-track-player": "^4.1.1",
     "react-native-video": "^6.8.2",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.2"
+    "react-native-webview": "13.12.2",
+    "semantic-ui-css": "^2.5.0",
+    "semantic-ui-react": "^2.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
