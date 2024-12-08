@@ -1,31 +1,18 @@
 import React from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {StyleSheet, Text, View, Button, Image} from 'react-native';
 import {Audio} from 'expo-av';
+//import LinearGradient from 'react-native-linear-gradient';
 
 export default function RootLayout(){
   const [recording, setRecording] = React.useState();
   const [records, setRecords] = React.useState([]);
-
-  // async function startRecording(){
-  //   try{
-  //     const perm = await Audio.requestPermissionsAsync();
-  //     if (perm.status === "granted"){
-  //       await Audio.setAudioModeAsync({
-  //         allowsRecordingIOS: true,
-  //         playsInSilentModeIOS:true
-  //       });
-  //       const {recording} = await Audio.Recording.createAsync(Audio.RECORDING_OPTIONS_PRESENTS_HIGH_QUALITY);
-  //       setRecording(recording)
-  //     }
-  //   }
-  // }
 
   async function startRecording() {
     try {
       const perm = await Audio.requestPermissionsAsync();
       if (perm.status === "granted") {
         await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
+          allowsRecording: true,
           playsInSilentModeIOS: true,
         });
         const { recording } = await Audio.Recording.createAsync(
@@ -41,28 +28,65 @@ export default function RootLayout(){
   async function stopRecording(){
     setRecording(undefined);
 
-    await recording.stopAndUnloadAsync();
-    let allowsRecording = {...records};
-    const {sound, starus} = await recording.createNewLoadedSoundAsync();
-    allowsRecording.push({
+  await recording.stopAndUnloadAsync();
+  const { sound, status } = await recording.createNewLoadedSoundAsync();
+  
+  setRecords((prevRecords) => [
+    ...prevRecords,
+    {
       sound: sound,
       duration: getDuration(status.durationMillis),
-      file: recording.getURI()
-    });
-    setRecording(allowsRecording);
+      file: recording.getURI(),
+    },
+  ]);
+    
+    // setRecording(undefined);
+
+    // await recording.stopAndUnloadAsync();
+    // let allowsRecording = [];  //{...records};
+    // const {sound, starus} = await recording.createNewLoadedSoundAsync();
+    // allowsRecording.push({
+    //   sound: sound,
+    //   duration: getDuration(status.durationMillis),
+    //   file: recording.getURI()
+    // });
+    //setRecords(allowsRecording);
   }
 
    function getDuration(miliseconds) {
-    
+    const minutes = miliseconds / 1000 / 60;
+    const seconds = Math.round((minutes - Math.floor(minutes)) * 60);
+    return seconds < 10? `${Math.floor(minutes)} :0${seconds}` : `${Math.floor(minutes)}`;
   }
-  function getRecordingLines(){}
-  function clearRecordings(){}
+
+  function getRecordingLines(){
+    return records.map((recordingLine, index) => {
+      return(
+          <View key={index} style={styles.row}>
+          <Text style={styles.fill}>
+            Recording #{index + 1} | 
+            {recordingLine.duration}
+          </Text>
+          <Button onPress={() => recordingLine.sound.replayAsync()} title="Play"></Button>
+        </View>
+      )
+    })
+  }
+
+  function clearRecordings(){
+    setRecords([]);
+  }
 
 
   return(
-    <View styles={styles.container}>
-      {getRecordingLines()}
-      <Button title={recording ? 'Stop Recording' : 'Start Recording'} onPress={recording ? stopRecording : startRecording}/>
+    <View style={styles.container}>
+      <Text style={styles.heading}>Recording App</Text>
+      <Image
+        source={require('@/assets/images/recording-icon.png')}
+        style={{width:200, height:200, justifyContent: 'center',}}
+      />
+      <Text>{getRecordingLines()}</Text>
+      <Button style={styles.button} title={recording ? 'Stop Recording' : 'Start Recording'} onPress={recording ? stopRecording : startRecording}/>
       <Button title={records.length > 0? "Clear Recordings" : ''} onPress={clearRecordings} />
     </View>
   );
@@ -72,11 +96,27 @@ export default function RootLayout(){
 const styles = StyleSheet.create({
   container:{
     flex:1,
-    background:'#fff',
+    // backgroundColor:'#fff',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    backgroundColor: 'pink'
   },
+  heading:{
+    fontWeight:'700',
+    textAlign:"center",
+    fontStyle:'italic',
+    lineHeight:30,
+    fontSize:35,
+    color:"1200FF",
+    marginBottom:35
+  },
+  button:{
+    borderRadius:29,
+    marginTop:29
+  }
 });
+
+
 // import { useEffect, useState } from 'react';
 // import { Text, View, Button,StyleSheet } from 'react-native';
 // import 'react-native-reanimated';
