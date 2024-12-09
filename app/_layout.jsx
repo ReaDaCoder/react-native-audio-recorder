@@ -3,11 +3,18 @@ import { useEffect } from 'react';
 import {StyleSheet, Text, View, Image, Button, TextInput} from 'react-native';
 import {Audio} from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import filter from 'lodash.filter';
 //import { Table, Button } from 'semantic-ui-react';
 
 export default function RootLayout(){
   const [recording, setRecording] = React.useState();
   const [records, setRecords] = React.useState([]);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleSearch = () =>{
+    setSearchQuery();
+  }
 
   async function startRecording() {
     try {
@@ -110,6 +117,7 @@ export default function RootLayout(){
           onChangeText={(text) => setMessage(text)}
           //value={message}
           placeholder="Search recording"
+          clearButtonMode='always'
           keyboardType="numeric"
         />
       <Image
