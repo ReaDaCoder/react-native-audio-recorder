@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect } from 'react';
-import {StyleSheet, Text, View, Image, Button} from 'react-native';
+import {StyleSheet, Text, View, Image, Button, TextInput} from 'react-native';
 import {Audio} from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 //import { Table, Button } from 'semantic-ui-react';
@@ -26,18 +26,6 @@ export default function RootLayout(){
       console.error("Error while recording:", error);
     }
   }
-
-  
-
-  // useEffect(() => {
-  //   AsyncStorage.getItem('records')
-  //     .then((storedRecords) => {
-  //       if (storedRecords) {
-  //         setRecords(JSON.parse(storedRecords)); 
-  //       }
-  //     })
-  //     .catch((error) => console.error('Error loading records:', error));
-  // }, []);
 
   useEffect(() => {
     AsyncStorage.getItem('records')
@@ -65,7 +53,6 @@ export default function RootLayout(){
   setRecords((prevRecords) => {
     const updatedRecords = [...prevRecords, newRecord];
 
-    // Save to local storage
     AsyncStorage.setItem('records', JSON.stringify(updatedRecords))
       .then(() => console.log('Records saved successfully!'))
       .catch((error) => console.error('Error saving records:', error));
@@ -117,10 +104,17 @@ export default function RootLayout(){
 
   return(
     <View style={styles.container}>
-      <Text style={styles.heading}>Recording App</Text>
+       <Text style={styles.heading}>Recording App</Text>
+     <TextInput
+          style={styles.input}
+          onChangeText={(text) => setMessage(text)}
+          //value={message}
+          placeholder="Search recording"
+          keyboardType="numeric"
+        />
       <Image
         source={require('@/assets/images/recording-icon.png')}
-        style={{width:200, height:200, justifyContent: 'center',}}
+        style={{width:180, height:180, justifyContent: 'center', marginBottom:35}}
       />
       <Text>{getRecordingLines()}</Text>
       <Button style={styles.button} title={recording ? 'Stop Recording' : 'Start Recording'} onPress={recording ? stopRecording : startRecording}/>
@@ -133,10 +127,17 @@ export default function RootLayout(){
 const styles = StyleSheet.create({
   container:{
     flex:1,
-    // backgroundColor:'#fff',
     alignItems:'center',
     justifyContent:'center',
     backgroundColor: 'pink'
+  },
+  input:{
+    borderRadius:5,
+    borderColor:"black",
+    color:"white",
+    padding:8,
+    marginBottom:45,
+    backgroundColor: 'grey',
   },
   heading:{
     fontWeight:'700',
@@ -145,10 +146,19 @@ const styles = StyleSheet.create({
     lineHeight:30,
     fontSize:35,
     color:"1200FF",
-    marginBottom:35
+    marginBottom:55
   },
   button:{
     borderRadius:29,
     marginTop:29
+  },
+  row:{
+    flexDirection:"row",
+    alignItems:'center',
+    justifyContent:'center'
+  },
+  fill:{
+    flex:1,
+    margin:16
   }
 });
