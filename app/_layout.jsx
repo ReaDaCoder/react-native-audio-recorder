@@ -11,9 +11,16 @@ export default function RootLayout(){
   const [records, setRecords] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [fullData, setFullData] = React.useState();
+  const [data, setData] = React.useState();
 
   const handleSearch = () =>{
     setSearchQuery();
+    const formattedQuery = query.toLowerCase();
+    const filteredData = filter(fullData, (record)=> {
+      return contains (record, formattedQuery);
+    });
+    setData(filteredData);
   }
 
   async function startRecording() {
@@ -120,6 +127,13 @@ export default function RootLayout(){
           clearButtonMode='always'
           keyboardType="numeric"
         />
+             <Button
+  title="Search"
+  color="orange"
+  accessibilityLabel="Learn more about this purple button"
+  onPress={() => handleSearch('button pressed')}
+  
+/>
       <Image
         source={require('@/assets/images/recording-icon.png')}
         style={{width:180, height:180, justifyContent: 'center', marginBottom:35}}
