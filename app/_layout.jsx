@@ -10,7 +10,6 @@ import Registration from '../components/Registration';
 export default function RootLayout(){
   return(
     <> 
-    <Registration/>
     <RecordingApp/>
     </>
   )
