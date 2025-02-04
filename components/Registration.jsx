@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, Button, View, Alert } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/firebaseConfig';
 
 export default function Registration() {
   const [data, setData] = useState({ email: '', password: '' });
-  const auth = getAuth();
+  // const auth = getAuth();
 
   const handleInput = (field, value) => {
     setData({ ...data, [field]: value });
